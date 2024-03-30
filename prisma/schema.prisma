@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comment_image {
+  comment_id  Int       @id @default(autoincrement())
+  user_id     Int?
+  image_id    Int?
+  date_create DateTime? @default(now()) @db.Timestamp(0)
+  content     String?   @db.Text
+  users       users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_image_ibfk_1")
+  images      images?   @relation(fields: [image_id], references: [image_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_image_ibfk_2")
+
+  @@index([image_id], map: "image_id")
+  @@index([user_id], map: "user_id")
+}
+
+model images {
+  image_id      Int             @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  size          Int?
+  user_id       Int?
+  comment_image comment_image[]
+  users         users?          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "images_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model users {
+  user_id       Int             @id @default(autoincrement())
+  full_name     String          @db.VarChar(100)
+  password      String          @db.VarChar(255)
+  email         String          @db.VarChar(255)
+  avatar        String?         @db.VarChar(255)
+  role          String          @db.VarChar(50)
+  refresh_token String?         @db.VarChar(255)
+  comment_image comment_image[]
+  images        images[]
+}
