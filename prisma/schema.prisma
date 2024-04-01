@@ -25,7 +25,9 @@ model images {
   name          String          @db.VarChar(255)
   size          Int?
   user_id       Int?
+  link          String?         @db.VarChar(255)
   comment_image comment_image[]
+  image_saved   image_saved[]
   users         users?          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "images_ibfk_1")
 
   @@index([user_id], map: "user_id")
@@ -39,6 +41,20 @@ model users {
   avatar        String?         @db.VarChar(255)
   role          String          @db.VarChar(50)
   refresh_token String?         @db.VarChar(255)
+  age           Int?
   comment_image comment_image[]
+  image_saved   image_saved[]
   images        images[]
+}
+
+model image_saved {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  image_id   Int?
+  date_saved DateTime? @default(now()) @db.Timestamp(0)
+  users      users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "image_saved_ibfk_1")
+  images     images?   @relation(fields: [image_id], references: [image_id], onDelete: NoAction, onUpdate: NoAction, map: "image_saved_ibfk_2")
+
+  @@index([image_id], map: "image_id")
+  @@index([user_id], map: "user_id")
 }

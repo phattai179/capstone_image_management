@@ -82,5 +82,20 @@ export class AuthService {
 
     }
 
+    getUser = async (userId: number, res: Response) => {
+        this.prisma.users
+
+        try {
+            let user = await this.prisma.users.findUnique({
+                where: {
+                    user_id: userId
+                }
+            })
+            this.globalService.responseApi(res, 200, user, "Successfully")
+        } catch (err) {
+            this.globalService.responseApi(res, 400, err, "Error")
+        }
+    }
+
 
 }
