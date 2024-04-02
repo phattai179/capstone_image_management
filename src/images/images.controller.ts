@@ -1,19 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Headers, Response } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Headers, Response, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @UseGuards(AuthGuard("jwt"))
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) { }
 
-  // @Post()
-  // create(@Body() createImageDto: CreateImageDto) {
-  //   return this.imagesService.create(createImageDto);
-  // }
+  @UseInterceptors(FileInterceptor("file", {
+    storage: diskStorage({
+      destination: process.cwd() + "public/img",
+      filename: (req, file, callback) => callback(null, new Date().getTime() + "_" + file.originalname)
+    })
+  }))
+  @Post("/upload-image")
+  postImage(@Req() req: Request, @UploadedFile() file: Express.Multer.File, @Body() body, @Response() res) {
+    const userId = req.user['userId']
+    const payloadBody = {
+      userId,
+      name: body.name,
+      description: body.description
+    }
+    console.log('body', body)
+    return this.imagesService.upLoadImage(payloadBody, file, res);
+  }
 
   @Get("/get-images-by-user")
   getImagesByUser(@Req() req: Request, @Response() res) {

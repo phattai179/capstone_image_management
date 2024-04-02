@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport'
 import { Request } from 'express';
 
-@UseGuards(AuthGuard("jwt"))
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
@@ -19,6 +18,7 @@ export class AuthController {
     this.authService.login(body, res)
   }
 
+  @UseGuards(AuthGuard("jwt"))
   @Get("/get-user")
   getUser(@Req() req: Request, @Response() res) {
     console.log('req', req)

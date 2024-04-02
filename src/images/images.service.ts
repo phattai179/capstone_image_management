@@ -4,15 +4,12 @@ import { UpdateImageDto } from './dto/update-image.dto';
 import { PrismaClient, images } from '@prisma/client';
 import { GlobalService } from 'src/core/services/global/global.service';
 import { Response } from 'express';
-
+import fs from "fs"
 @Injectable()
 export class ImagesService {
   constructor(private globalService: GlobalService) { }
   prisma = new PrismaClient();
 
-  create(createImageDto: CreateImageDto) {
-    return 'This action adds a new image';
-  }
 
   async findAll(): Promise<images[]> {
     return await this.prisma.images.findMany();
@@ -49,7 +46,6 @@ export class ImagesService {
       this.globalService.responseApi(res, 500, err, "Error");
 
     }
-
 
   }
 
@@ -131,6 +127,29 @@ export class ImagesService {
       this.globalService.responseApi(res, 200, imagesDelelted, "Successfully")
     } catch (err) {
       this.globalService.responseApi(res, 400, err, "Error")
+    }
+  }
+
+  upLoadImage = async (payloadBody: any, file: Express.Multer.File, res: Response) => {
+    console.log('userId', payloadBody)
+    console.log('file', file)
+    const { userId, name, description } = payloadBody;
+
+    try {
+      const newImage = {
+        name: name,
+        description: description || '',
+        user_id: userId,
+        size: file.size,
+        link: file.filename
+      }
+      await this.prisma.images.create({
+        data: newImage
+      })
+      this.globalService.responseApi(res, 200, "", "Successfully")
+    } catch (err) {
+      console.log('err', err)
+      this.globalService.responseApi(res, 400, "", "Error")
     }
   }
 

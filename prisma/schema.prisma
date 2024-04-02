@@ -26,6 +26,7 @@ model images {
   size          Int?
   user_id       Int?
   link          String?         @db.VarChar(255)
+  description   String?         @db.VarChar(255)
   comment_image comment_image[]
   image_saved   image_saved[]
   users         users?          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "images_ibfk_1")
