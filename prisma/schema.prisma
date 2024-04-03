@@ -43,6 +43,7 @@ model users {
   role          String          @db.VarChar(50)
   refresh_token String?         @db.VarChar(255)
   age           Int?
+  user_name     String          @db.VarChar(100)
   comment_image comment_image[]
   image_saved   image_saved[]
   images        images[]

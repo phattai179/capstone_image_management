@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Response, Req, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Response, Req, Get, UseGuards, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport'
 import { Request } from 'express';
@@ -16,6 +16,13 @@ export class AuthController {
   login(@Body() body, @Response() res) {
     console.log('body login', body)
     this.authService.login(body, res)
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Put("/update-user")
+  updateUser(@Req() req: Request, @Body() body, @Response() res) {
+    const userId = req.user['userId']
+    this.authService.updateUser(Number(userId), body, res)
   }
 
   @UseGuards(AuthGuard("jwt"))

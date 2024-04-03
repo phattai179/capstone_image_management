@@ -15,12 +15,14 @@ export class AuthService {
 
     async signUp(body: User, res: Response) {
         try {
-            let { full_name, password, email } = body;
+            let { user_name, full_name, password, email, avatar, age } = body;
             let newUser: User = {
+                user_name: user_name,
                 full_name: full_name,
                 email: email,
                 password: bcrypt.hashSync(password, 10),
-                avatar: "",
+                avatar: avatar || "",
+                age: age,
                 role: "USER"
             } as any
 
@@ -47,11 +49,11 @@ export class AuthService {
     }
 
     login = async (body: User, res: Response) => {
-        let { full_name, password } = body
+        let { user_name, password } = body
 
         let checkName = await this.prisma.users.findFirst({
             where: {
-                full_name: full_name
+                user_name: user_name
             }
         })
 
@@ -83,8 +85,6 @@ export class AuthService {
     }
 
     getUser = async (userId: number, res: Response) => {
-        this.prisma.users
-
         try {
             let user = await this.prisma.users.findUnique({
                 where: {
@@ -97,5 +97,23 @@ export class AuthService {
         }
     }
 
+
+    updateUser = async (userId: number, body: User, res: Response) => {
+        let { full_name, age, email, avatar } = body;
+
+        try {
+            let user = await this.prisma.users.findUnique({ where: { user_id: userId } })
+            console.log('user old', user)
+            user = { ...user, full_name, age, email, avatar }
+            console.log('neww user', user)
+            await this.prisma.users.update({
+                where: { user_id: userId },
+                data: user
+            })
+            this.globalService.responseApi(res, 200, "", "Successfully")
+        } catch (err) {
+            this.globalService.responseApi(res, 400, err, "Error")
+        }
+    }
 
 }
